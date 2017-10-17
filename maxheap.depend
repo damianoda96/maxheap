@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1507662738 source:c:\users\deven\desktop\maxheap\main.cpp
+	<iostream>
+	<fstream>
+
+1508281665 source:c:\users\deven damiano\desktop\maxheap\main.cpp
+	<iostream>
+	<fstream>
+	<vector>
+	<string>
+	<bits/stdc++.h>
+
