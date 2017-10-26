@@ -8,14 +8,14 @@
 
 using namespace std;
 
-int stoi(string str)
+/*int stoi(string str)
 {
    stringstream ss(str);
    int N;
    ss<<str;
    ss>>N;
    return N;
-}
+}*/
 
 struct maxHeap
 {
