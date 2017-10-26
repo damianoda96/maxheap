@@ -2,7 +2,9 @@
 #include <fstream>
 #include <vector>
 #include <string>
-# include <bits/stdc++.h>
+#include <algorithm>
+#include <sstream>
+//# include <bits/stdc++.h>
 
 using namespace std;
 
@@ -45,85 +47,132 @@ struct maxHeap
 
     void insertKey(string s)
     {
-        size_of_heap++;
-
-        int i= size_of_heap - 1;
-
         maxHeapVect.push_back(s);
+
+        int i = size() - 1;
 
         max_heapify(i);
     }
 
-    void deleteKey(int i)
-    {
-
-    }
-
     void buildHeap(vector<string> fileVect)
     {
-        for(int i = 0; i < fileVect.size() - 1; i++)
+        for(int i = 0; i < fileVect.size(); i++)
         {
             insertKey(fileVect[i]);
         }
     }
 
-    void max_heapify(int i)
+    int size()
     {
-        int l = left(i);
-        int r = right(i);
-        int largest = i;
+        return maxHeapVect.size();
+    }
 
-        if(build_by_id == true)
+    void swap(string& s1, string& s2)
+    {
+        string temp = s2;
+        s2 = s1;
+        s1 = temp;
+    }
+
+    string grab_lname(string element)
+    {
+        string lname;
+        int spaceCounter = 0;
+
+        for(int j = 0; j < element.size(); j++)
         {
-            if(convert_for_ID(maxHeapVect[l]) > convert_for_ID(maxHeapVect[i])) //do this for all comparisons in max_heapify!!!
+            if(isspace(element[j]))
             {
-                largest = l;
+                spaceCounter++;
             }
-            if(convert_for_ID(maxHeapVect[r]) > convert_for_ID(maxHeapVect[largest]))
+            if(spaceCounter == 2)
             {
-                largest = r;
+                break;
             }
-            if(largest != i)
+            if(isalpha(element[j]) && spaceCounter == 1)
             {
-                string temp = maxHeapVect[i];
-                maxHeapVect[i] = maxHeapVect[largest];
-                maxHeapVect[largest] = maxHeapVect[i];
-
-                max_heapify(largest);
+                lname += element[j];
             }
         }
-        else if(build_by_name == true)
-        {
-            if(convert_for_lname(maxHeapVect[l]) > convert_for_lname(maxHeapVect[i]))
-            {
-                largest = l;
-            }
-            if(convert_for_lname(maxHeapVect[r]) > convert_for_lname(maxHeapVect[largest]))
-            {
-                largest = r;
-            }
-            if(largest != i)
-            {
-                string temp = maxHeapVect[i];
-                maxHeapVect[i] = maxHeapVect[largest];
-                maxHeapVect[largest] = maxHeapVect[i];
 
-                max_heapify(largest);
+        return lname;
+
+    }
+
+    void print_in_order()
+    {
+        for(int i = 0; i < size(); i++)
+        {
+            cout << maxHeapVect[i] << endl;
+        }
+    }
+
+    void delete_by_id(string s)
+    {
+        for(int i = 0; i < size(); i++)
+        {
+            cout << convert_for_ID(maxHeapVect[i]);
+            if(stoi(s) == convert_for_ID(maxHeapVect[i]))
+            {
+
+                maxHeapVect.erase(remove(maxHeapVect.begin(), maxHeapVect.end(), maxHeapVect[i]), maxHeapVect.end());
+            }
+        }
+    }
+
+    void delete_by_lname(string s)
+    {
+        for(int i = 0; i < size(); i++)
+        {
+            if(s == grab_lname(maxHeapVect[i]))
+            {
+                cout << "found match" << endl;
+                maxHeapVect.erase(remove(maxHeapVect.begin(), maxHeapVect.end(), maxHeapVect[i]), maxHeapVect.end());
+            }
+        }
+    }
+
+    void max_heapify(int i)
+    {
+        if(build_by_id)
+        {
+            if (i && convert_for_ID(maxHeapVect[parent(i)]) < convert_for_ID(maxHeapVect[i]))
+            {
+                swap(maxHeapVect[i], maxHeapVect[parent(i)]);
+
+                max_heapify(parent(i));
+            }
+        }
+        else if(build_by_name)
+        {
+            if (i && convert_for_lname(maxHeapVect[parent(i)]) < convert_for_lname(maxHeapVect[i]))
+            {
+                swap(maxHeapVect[i], maxHeapVect[parent(i)]);
+
+                max_heapify(parent(i));
             }
         }
     }
 
     int convert_for_ID(string element)
     {
-        //string element = maxHeapVect[i];
         string idS;
         int id;
+        int spaceCounter = 0;
 
         for(int j = 0; j < element.size(); j++)
         {
+            if(isspace(element[j]))
+            {
+                spaceCounter++;
+            }
             if(isdigit(element[j]))
             {
                 idS+=element[j];
+            }
+            if(spaceCounter == 3)
+            {
+                break;
             }
         }
 
@@ -135,7 +184,6 @@ struct maxHeap
 
     char convert_for_lname(string element)
     {
-        //string element = maxHeapVect[i];
         char lname;
         bool hit_first_space = false;
 
@@ -158,11 +206,10 @@ struct maxHeap
 
 vector<string> readExternal();
 maxHeap build_Heap(vector<string>);
-void addRecord();
-void deleteRecord();
-void sortList();
-void printSortedList();
-void saveSortedList();
+void addRecord(maxHeap&);
+void deleteRecord(maxHeap&);
+void printSortedList(maxHeap);
+void saveSortedList(maxHeap);
 void loadAndPrintFile();
 
 
@@ -199,18 +246,21 @@ int main()
                 break;
             case 2:
                 m_heap = build_Heap(fileVect);
+                m_heap.print_in_order();
                 break;
             case 3:
-                addRecord();
+                addRecord(m_heap);
+                m_heap.print_in_order();
                 break;
             case 4:
-                deleteRecord();
+                deleteRecord(m_heap);
+                m_heap.print_in_order();
                 break;
             case 5:
-                printSortedList();
+                printSortedList(m_heap);
                 break;
             case 6:
-                saveSortedList();
+                saveSortedList(m_heap);
                 break;
             case 7:
                 loadAndPrintFile();
@@ -282,6 +332,7 @@ maxHeap build_Heap(vector<string> fileVect)
     {
         m_heap.build_by_id = true;
         m_heap.build_by_name = false;
+        cout << "You selected ID" << endl;
     }
     else if(choice == "lastname")
     {
@@ -294,20 +345,23 @@ maxHeap build_Heap(vector<string> fileVect)
         exit(0);
     }
 
-    //implement buildHeap! use our vector to insert current listing into heap by either id or name.
-    //to order, index each element for either id number, or first letter of last name, and use this char as the comparison
-    //to order with the maximum element as the parent, and ordering down from there.
     m_heap.buildHeap(fileVect);
+
+    return m_heap;
 }
 
-void addRecord()
+void addRecord(maxHeap& m_heap)
 {
     string newRecord;
     cout << "Please enter the new record in correct format:" << endl;
     getline(cin, newRecord);
+
+    cout << endl;
+
+    m_heap.insertKey(newRecord);
 }
 
-void deleteRecord()
+void deleteRecord(maxHeap& m_heap)
 {
     string recordToDelete;
     cout << "Please enter the ID or last name of the record being deleted:" << endl;
@@ -315,11 +369,11 @@ void deleteRecord()
 
     if(isdigit(recordToDelete[0]))
     {
-        cout << "An ID was inputed" << endl;
+        m_heap.delete_by_id(recordToDelete);
     }
     else if(isalpha(recordToDelete[0]))
     {
-        cout << "A last name was inputed";
+        m_heap.delete_by_lname(recordToDelete);
     }
     else
     {
@@ -327,18 +381,55 @@ void deleteRecord()
     }
 }
 
-void printSortedList()
+void printSortedList(maxHeap m_heap)
 {
-
+    m_heap.print_in_order();
 }
 
-void saveSortedList()
+void saveSortedList(maxHeap m_heap)
 {
-
+    fstream myFile("316p2.rec", ios::out | ios::binary);
+    for(int i = 0; i < m_heap.size(); i++)
+    {
+        myFile.write((char*)&m_heap.maxHeapVect[i], sizeof(vector<string>));
+    }
+    myFile.close();
 }
 
 void loadAndPrintFile()
 {
+    ifstream in;
+
+   in.open("316p2.rec", ios::in | ios::binary);
+
+   if(in.is_open())
+   {
+      // get the starting position
+      streampos start = in.tellg();
+
+      // go to the end
+      in.seekg(0, std::ios::end);
+
+      // get the ending position
+      streampos end = in.tellg();
+
+      // go back to the start
+      in.seekg(0, std::ios::beg);
+
+      // create a vector to hold the data that
+      // is resized to the total size of the file
+      std::vector<char> contents;
+      contents.resize(static_cast<size_t>(end - start));
+
+      // read it in
+      in.read(&contents[0], contents.size());
+
+      // print it out (for clarity)
+      for(const char& c : contents)
+      {
+         cout << c;
+      };
+   }
 
 }
 
