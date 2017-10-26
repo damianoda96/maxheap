@@ -211,6 +211,7 @@ void deleteRecord(maxHeap&);
 void printSortedList(maxHeap);
 void saveSortedList(maxHeap);
 void loadAndPrintFile();
+void clearBinaryFile();
 
 
 int main()
@@ -233,7 +234,8 @@ int main()
         cout << "(5) Print sorted list from max heap in ascending order based on ID or last name" << endl;
         cout << "(6) Save sorted list in external file" << endl;
         cout << "(7) Load binary file and print records one line at a time" << endl;
-        cout << "(8) Exit program" << endl;
+        cout << "(8) Clear Binary" << endl;
+        cout << "(9) Exit program" << endl;
 
         cin >> selection;
 
@@ -266,6 +268,9 @@ int main()
                 loadAndPrintFile();
                 break;
             case 8:
+                clearBinaryFile();
+                break;
+            case 9:
                 running = false;
                 return 0;
                 break;
@@ -389,48 +394,35 @@ void printSortedList(maxHeap m_heap)
 void saveSortedList(maxHeap m_heap)
 {
     fstream myFile("316p2.rec", ios::out | ios::binary);
-    for(int i = 0; i < m_heap.size(); i++)
-    {
-        myFile.write((char*)&m_heap.maxHeapVect[i], sizeof(vector<string>));
-    }
+    myFile.write((char*)&m_heap, sizeof(maxHeap));
     myFile.close();
 }
 
 void loadAndPrintFile()
 {
-    ifstream in;
+    ifstream myFile;
+    
+    maxHeap* readHeap = new maxHeap[10];
 
-   in.open("316p2.rec", ios::in | ios::binary);
+    myFile.open("316p2.rec", ios::in | ios::binary);
+    
+    myFile.read((char*)readHeap, sizeof(maxHeap) * 10);
+    
+    for(int i = 0; i < readHeap->size(); i++)
+    {
+        cout << readHeap->maxHeapVect[i] << endl;
+    }
+        
+    myFile.close();
+}
 
-   if(in.is_open())
-   {
-      // get the starting position
-      streampos start = in.tellg();
-
-      // go to the end
-      in.seekg(0, std::ios::end);
-
-      // get the ending position
-      streampos end = in.tellg();
-
-      // go back to the start
-      in.seekg(0, std::ios::beg);
-
-      // create a vector to hold the data that
-      // is resized to the total size of the file
-      std::vector<char> contents;
-      contents.resize(static_cast<size_t>(end - start));
-
-      // read it in
-      in.read(&contents[0], contents.size());
-
-      // print it out (for clarity)
-      for(const char& c : contents)
-      {
-         cout << c;
-      };
-   }
-
+void clearBinaryFile()
+{
+    ofstream myFile;
+    
+    myFile.open("316p2.rec", ofstream::out | ofstream::trunc);
+    
+    myFile.close();
 }
 
 
