@@ -225,7 +225,7 @@ int main()
 
     while(running)
     {
-
+        cout << "Please follow steps 1-9 in order" << endl;
         cout << "Select one of the following options and hit enter:" << endl;
         cout << "(1) Read data from an external file" << endl;
         cout << "(2) Build max heap in terms of ID or LastName" << endl;
@@ -358,7 +358,7 @@ maxHeap build_Heap(vector<string> fileVect)
 void addRecord(maxHeap& m_heap)
 {
     string newRecord;
-    cout << "Please enter the new record in correct format:" << endl;
+    cout << "Please enter the new record in correct format: Firstname Lastname id(integer) gpa(float)" << endl;
     getline(cin, newRecord);
 
     cout << endl;
